@@ -35,7 +35,7 @@ if __name__ == '__main__':
     # two city.
     # chi : Chicago
     # ny : New York
-    CITY = 'ny'
+    CITY = 'chi'
     # CITY = 'ny'
 
     ############################InitSeed###################################

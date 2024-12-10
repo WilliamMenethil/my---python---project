@@ -5,8 +5,8 @@ from functools import reduce
 import torch
 import torch.utils.data as Data
 
-from .normalization import StandardScaler, MinMax01Scaler
-from .normalization import MinMax11Scaler, NScaler
+from my_code.utils.normalization import StandardScaler, MinMax01Scaler
+from my_code.utils.normalization import MinMax11Scaler, NScaler
 
 # Testing print info.
 from icecream import ic
@@ -40,23 +40,21 @@ class DatasetLoader(object):
     def _read_data(self):
         A = np.load(os.path.join(self._data_path, self._adj_filename))
         X = np.load(os.path.join(self._data_path, self._node_features_filename))
-        X[X>1]=1
 
         X = X.astype(np.float32)      
 
         # if self.binary is True, The downstream task is binary classification.
         # else, The downstream task is regression.
-        if self._binary == 'true':
-            X = np.int64(X > 0)
-            self._norm = 'ns'
-            X, scaler = self._normalize(X)
-            self._threshold = np.sum(X, axis=(0, 1)) / reduce(lambda x, y : x * y, X.shape[:-1])
-            self._pos_weights = torch.tensor((1 - self._threshold) / self._threshold)
-            # maybe this threhold is better.
-            self._threshold = np.array([0.5] * X.shape[-1])
-            self._pos_weights = torch.tensor(len(self._threshold) * [1])
-        else:
-            X, scaler = self._normalize(X)
+
+        X = np.int64(X > 0)
+        self._norm = 'ns'
+        X, scaler = self._normalize(X)
+        self._threshold = np.sum(X, axis=(0, 1)) / reduce(lambda x, y : x * y, X.shape[:-1])
+        self._pos_weights = torch.tensor((1 - self._threshold) / self._threshold)
+        # maybe this threhold is better.
+        # self._threshold = np.array([0.5] * X.shape[-1])  #此处将threshold值都设成了0.5
+        self._pos_weights = torch.tensor(len(self._threshold) * [1])
+
 
         self._adj = A
         self._data = X
